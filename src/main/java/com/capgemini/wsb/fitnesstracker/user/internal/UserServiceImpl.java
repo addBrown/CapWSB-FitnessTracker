@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-class UserServiceImpl implements UserService, UserProvider {
+public class UserServiceImpl implements UserService, UserProvider {
 
     private final UserRepository userRepository;
 
@@ -37,8 +37,37 @@ class UserServiceImpl implements UserService, UserProvider {
     }
 
     @Override
+    public List<User> getUsersByAge(final int age) {
+        return userRepository.findByAgeGreaterThan(age);
+    }
+
+    @Override
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
+    @Override
+    public boolean deleteUser(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public User updateUser(Long id, User updatedUser) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setFirstName(updatedUser.getFirstName());
+                    user.setLastName(updatedUser.getLastName());
+                    user.setBirthdate(updatedUser.getBirthdate());
+                    user.setEmail(updatedUser.getEmail());
+                    return userRepository.save(user);
+                })
+                .orElseGet(() -> {
+                    updatedUser.setId(id);
+                    return userRepository.save(updatedUser);
+                });
+    }
 }

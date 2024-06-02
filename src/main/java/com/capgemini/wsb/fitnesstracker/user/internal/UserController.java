@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 class UserController {
 
-    private final UserServiceImpl userService;
+    private final com.capgemini.wsb.fitnesstracker.user.internal.UserServiceImpl userService;
 
     private final UserMapper userMapper;
 
