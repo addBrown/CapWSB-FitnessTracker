@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE FUNCTION('timestampdiff', YEAR, u.birthdate, CURRENT_DATE) > :age")
     List<User> findByAgeGreaterThan(@Param("age") int age);
 
-
+    @Query("SELECT u FROM User u WHERE u.birthdate < :date")
+    List<User> findUsersOlderThan(@Param("date") LocalDate date);
 
 }

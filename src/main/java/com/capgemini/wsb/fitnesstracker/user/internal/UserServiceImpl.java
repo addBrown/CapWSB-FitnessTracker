@@ -1,43 +1,37 @@
 package com.capgemini.wsb.fitnesstracker.user.internal;
 
 import com.capgemini.wsb.fitnesstracker.user.api.User;
-import com.capgemini.wsb.fitnesstracker.user.api.UserProvider;
 import com.capgemini.wsb.fitnesstracker.user.api.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-public class UserServiceImpl implements UserService, UserProvider {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     @Override
-    public User createUser(final User user) {
-        log.info("Creating User {}", user);
-        if (user.getId() != null) {
-            throw new IllegalArgumentException("User has already DB ID, update is not permitted!");
-        }
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 
     @Override
-    public Optional<User> getUser(final Long userId) {
+    public Optional<User> getUser(Long userId) {
         return userRepository.findById(userId);
     }
 
     @Override
-    public Optional<User> getUserByEmail(final String email) {
+    public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     @Override
-    public List<User> getUsersByAge(final int age) {
+    public List<User> getUsersByAge(int age) {
         return userRepository.findByAgeGreaterThan(age);
     }
 
@@ -57,17 +51,15 @@ public class UserServiceImpl implements UserService, UserProvider {
 
     @Override
     public User updateUser(Long id, User updatedUser) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setFirstName(updatedUser.getFirstName());
-                    user.setLastName(updatedUser.getLastName());
-                    user.setBirthdate(updatedUser.getBirthdate());
-                    user.setEmail(updatedUser.getEmail());
-                    return userRepository.save(user);
-                })
-                .orElseGet(() -> {
-                    updatedUser.setId(id);
-                    return userRepository.save(updatedUser);
-                });
+        if (userRepository.existsById(id)) {
+            updatedUser.setId(id);
+            return userRepository.save(updatedUser);
+        }
+        return null;
+    }
+
+    @Override
+    public List<User> getUsersOlderThan(LocalDate date) {
+        return userRepository.findUsersOlderThan(date);
     }
 }
